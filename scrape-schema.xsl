@@ -21,7 +21,7 @@
 
 <xsl:template match="/">
 <xsl:variable name="thing" select="//h1[@class='page-title']/a[position()=last()]/@href" />
-<xsl:variable name="super" select="//th[@class='supertype-name' and position()=last()]/a/@href" />
+<xsl:variable name="super" select="//h1[@class='page-title']/a[position()=last()-1]/@href" />
 class <xsl:value-of select="$thing"/> extends <xsl:value-of select="$super" /><xsl:value-of select="$nl" />
 <xsl:for-each select="//tbody[@class='supertype'][position()=last()]/tr">
     <xsl:value-of select="$tab" /><xsl:value-of select="th[@class='prop-nam']/code/text()" /> = fields.<xsl:call-template name="type"><xsl:with-param name="input" select="td[@class='prop-ect']" /></xsl:call-template>
