@@ -25,12 +25,16 @@
 <xsl:value-of select="$super" /> = require './<xsl:value-of select="$super" />'
 
 class <xsl:value-of select="$thing"/> extends <xsl:value-of select="$super" /><xsl:value-of select="$nl" />
-<xsl:for-each select="//tbody[@class='supertype'][position()=last()]/tr">
+<xsl:choose>
+<xsl:when test="//thead[@class='supertype']/tr/th[@class='supertype-name']/a[@href=$thing]">
+    <xsl:for-each select="//tbody[@class='supertype' and position()=last()]/tr">
     <xsl:value-of select="$tab" /><xsl:value-of select="th[@class='prop-nam']/code/text()" /> = fields.<xsl:call-template name="type"><xsl:with-param name="input" select="td[@class='prop-ect']" /></xsl:call-template>
     <xsl:value-of select="$nl" />
     <xsl:value-of select="$tab" /><xsl:value-of select="$tab" />description: "<xsl:value-of select="td[@class='prop-desc']" />"
     )<xsl:value-of select="$nl" />
-</xsl:for-each>
+    </xsl:for-each>
+</xsl:when>
+</xsl:choose>
 
 module.exports = <xsl:value-of select="$thing" />
 </xsl:template>
