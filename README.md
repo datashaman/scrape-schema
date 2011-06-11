@@ -13,3 +13,6 @@ Downloading the HTML file and working on a local copy would be polite!
 The fields module is not supplied, since I didn't want this version to be
 too system-specific. It's based on the [Kanso fields module](http://kansojs.org/docs.html#fields), date type is
 the only addon field for now.
+
+Tailoring the XSLT file to your class / prototype system should be
+relatively painless.
