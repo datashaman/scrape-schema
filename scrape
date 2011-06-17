@@ -1,0 +1,84 @@
+#!/usr/bin/env coffee
+
+console       = require('console')
+jsdom         = require('jsdom')
+eco           = require('eco')
+getopt        = require('posix-getopt')
+
+usage = """
+Please specify the schema to be transformed, using -s or --schema
+"""
+
+parser = new getopt.BasicParser(':s:(schema)', process.ARGV)
+option = parser.getopt()
+while option and not option.error
+    if option.option == 's'
+        schema = option.optarg
+    option = parser.getopt()
+
+if option and option.error
+    raise option.error
+else
+    if not schema
+        console.error usage
+        return
+
+template = """
+<% for require in @requires: %>require './<%= require %>'\n<% end %>
+class <%= @name %> extends <%= @supertype %>
+<% for f in @fields: %>    <%= f.name %> = <%= f.types %>
+<% end %>
+"""
+
+jsdom.env(schema, [
+    'https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js'
+], (err, window) ->
+    if err
+        console.error err
+        return
+
+    create_class = (type) ->
+        console.log eco.render template, type
+
+    split_string = (text, delimiter) ->
+        delimiter_len = delimiter.length
+
+        get_pos = -> text.indexOf(delimiter, prev)
+        add_item = -> items.push(text[prev...pos])
+
+        items = []
+        prev = 0
+        pos = get_pos()
+
+        while pos != -1 and prev < text.length
+            add_item()
+            prev = pos + delimiter_len
+            pos = get_pos()
+
+        pos = text.length
+        add_item()
+        items
+
+    $ = window.jQuery
+
+    lastChild = $('h1.page-title a:last-child')
+    name = lastChild.attr('href')
+    supertype = lastChild.prev().attr('href')
+    requires = [supertype]
+
+    fields = $("th.supertype-name a[href=\"#{name}\"]").closest('thead').next('tbody').find('tr').map(->
+        types = split_string($('.prop-ect', this).text(), ' or ')
+        for t in types
+            requires.push(t) if t not in requires
+
+        name: $('.prop-nam code', this).text()
+        types: types
+        description: $('.prop-desc', this).html()
+    ).get()
+
+    create_class
+        name: name
+        supertype: supertype
+        fields: fields
+        requires: requires
+)
